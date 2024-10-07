@@ -1,0 +1,1 @@
+# TypeScript-Adamovych-PD-43-
