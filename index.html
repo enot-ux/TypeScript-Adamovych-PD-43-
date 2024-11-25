@@ -1,111 +1,36 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управління розкладом занять</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест CMS</title>
 </head>
 <body>
-    <h1>Управління розкладом занять в університеті</h1>
+  <h1>Тест CMS</h1>
 
-    <h2>Додати професора</h2>
-    <label for="professorName">Ім'я професора:</label>
-    <input type="text" id="professorName">
-    <label for="professorDepartment">Відділ професора:</label>
-    <input type="text" id="professorDepartment">
-    <button onclick="handleAddProfessor()">Додати професора</button>
+  <section>
+    <h2>Створити статтю</h2>
+    <form id="create-article-form">
+      <label>
+        Заголовок:
+        <input type="text" id="article-title" required />
+      </label>
+      <br />
+      <label>
+        Зміст:
+        <textarea id="article-content" required></textarea>
+      </label>
+      <br />
+      <label>
+        Автор:
+        <input type="text" id="article-author" required />
+      </label>
+      <br />
+      <button type="submit">Створити статтю</button>
+    </form>
+    <div id="article-result"></div>
+  </section>
 
-    <h2>Додати заняття</h2>
-    <label for="courseId">ID курсу:</label>
-    <input type="number" id="courseId">
-
-    <label for="professorId">ID професора:</label>
-    <input type="number" id="professorId">
-
-    <label for="classroomNumber">Номер аудиторії:</label>
-    <input type="text" id="classroomNumber">
-
-    <label for="dayOfWeek">День тижня:</label>
-    <select id="dayOfWeek">
-        <option value="Monday">Понеділок</option>
-        <option value="Tuesday">Вівторок</option>
-        <option value="Wednesday">Середа</option>
-        <option value="Thursday">Четвер</option>
-        <option value="Friday">П’ятниця</option>
-    </select>
-
-    <label for="timeSlot">Часовий слот:</label>
-    <select id="timeSlot">
-        <option value="8:30-10:00">8:30-10:00</option>
-        <option value="10:15-11:45">10:15-11:45</option>
-        <option value="12:15-13:45">12:15-13:45</option>
-        <option value="14:00-15:30">14:00-15:30</option>
-        <option value="15:45-17:15">15:45-17:15</option>
-    </select>
-
-    <button onclick="handleAddLesson()">Додати заняття</button>
-
-    <h2>Пошук вільних аудиторій</h2>
-    <label for="availableClassroomsDay">День:</label>
-    <select id="availableClassroomsDay">
-        <option value="Monday">Понеділок</option>
-        <option value="Tuesday">Вівторок</option>
-        <option value="Wednesday">Середа</option>
-        <option value="Thursday">Четвер</option>
-        <option value="Friday">П'ятниця</option>
-    </select>
-    <label for="availableClassroomsTime">Час:</label>
-    <select id="availableClassroomsTime">
-        <option value="8:30-10:00">8:30-10:00</option>
-        <option value="10:15-11:45">10:15-11:45</option>
-        <option value="12:15-13:45">12:15-13:45</option>
-        <option value="14:00-15:30">14:00-15:30</option>
-        <option value="15:45-17:15">15:45-17:15</option>
-    </select>
-    <button onclick="handleFindAvailableClassrooms()">Пошук вільних аудиторій</button>
-
-    <h2>Розклад професора</h2>
-    <label for="professorScheduleId">ID професора:</label>
-    <input type="number" id="professorScheduleId">
-    <button onclick="handleGetProfessorSchedule()">Отримати розклад професора</button>
-
-    <h2>Найпопулярніший тип заняття</h2>
-    <button onclick="handleGetMostPopularCourseType()">Отримати найпопулярніший тип заняття</button>
-
-    <h2>Відсоток використання аудиторії</h2>
-    <label for="classroomUtilizationNumber">Номер аудиторії:</label>
-    <input type="text" id="classroomUtilizationNumber">
-    <button onclick="handleGetClassroomUtilization()">Отримати відсоток використання аудиторії</button>
-
-    <h2>Змінити аудиторію для заняття</h2>
-    <label for="reassignLessonId">ID заняття:</label>
-    <input type="number" id="reassignLessonId">
-    <label for="newClassroomNumber">Нова аудиторія:</label>
-    <input type="text" id="newClassroomNumber">
-    <button onclick="handleReassignClassroom()">Змінити аудиторію</button>
-
-    <h2>Скасувати заняття</h2>
-    <label for="cancelLessonId">ID заняття:</label>
-    <input type="number" id="cancelLessonId">
-    <button onclick="handleCancelLesson()">Скасувати заняття</button>
-
-    <h1>Розклад занять</h1>
-    <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>ID Заняття</th>
-                <th>ID Курсів</th>
-                <th>ID Професора</th>
-                <th>Номер Аудиторії</th>
-                <th>День Тижня</th>
-                <th>Часовий Інтервал</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-    
-
-    <script src="dist/main.js"></script>
+  <script src="dist/main.js"></script>
 </body>
 </html>

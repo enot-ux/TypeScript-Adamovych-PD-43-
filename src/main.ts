@@ -1,198 +1,145 @@
-// Визначення типів для днів тижня, часових слотів, типів курсів, професорів, класів, курсів, занять та конфліктів
-type DayOfWeek = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday";
-type TimeSlot = "8:30-10:00" | "10:15-11:45" | "12:15-13:45" | "14:00-15:30" | "15:45-17:15";
-type CourseType = "Lecture" | "Seminar" | "Lab" | "Practice";
-
-type Professor = {
-    id: number;
-    name: string;
-    department: string;
-};
-
-type Classroom = {
-    number: string;
-    capacity: number;
-    hasProjector: boolean;
-};
-
-type Course = {
-    id: number;
-    name: string;
-    type: CourseType;
-};
-
-type Lesson = {
-    id: number;
-    courseId: number;
-    professorId: number;
-    classroomNumber: string;
-    dayOfWeek: DayOfWeek;
-    timeSlot: TimeSlot;
-};
-
-type ScheduleConflict = {
-    type: "ProfessorConflict" | "ClassroomConflict";
-    lessonDetails: Lesson;
-};
-
-// Приклад даних для професорів, класів та курсів
-const professors: Professor[] = [
-  { id: 1, name: "Олег Іванов", department: "Фізика" },
-  { id: 2, name: "Марія Петрова", department: "Математика" },
-  { id: 3, name: "Сергій Коваленко", department: "Інформатика" },
-];
-
-const classrooms: Classroom[] = [
-  { number: "101", capacity: 30, hasProjector: true },
-  { number: "102", capacity: 25, hasProjector: false },
-  { number: "103", capacity: 40, hasProjector: true },
-  { number: "104", capacity: 50, hasProjector: true },
-  { number: "105", capacity: 20, hasProjector: false },
-];
-
-const courses: Course[] = [
-  { id: 1, name: "Фізика", type: "Lecture" },
-  { id: 2, name: "Алгебра", type: "Lecture" },
-  { id: 3, name: "Програмування", type: "Lab" },
-  { id: 4, name: "Дослідження операцій", type: "Seminar" },
-  { id: 5, name: "Математичний аналіз", type: "Practice" },
-];
-
-// Розклад занять
-const schedule: Lesson[] = [
-  { id: 1, courseId: 1, professorId: 1, classroomNumber: "101", dayOfWeek: "Monday", timeSlot: "8:30-10:00" },
-  { id: 2, courseId: 2, professorId: 2, classroomNumber: "102", dayOfWeek: "Tuesday", timeSlot: "10:15-11:45" },
-  { id: 3, courseId: 3, professorId: 3, classroomNumber: "103", dayOfWeek: "Wednesday", timeSlot: "12:15-13:45" },
-  { id: 4, courseId: 4, professorId: 1, classroomNumber: "104", dayOfWeek: "Thursday", timeSlot: "14:00-15:30" },
-  { id: 5, courseId: 5, professorId: 2, classroomNumber: "105", dayOfWeek: "Friday", timeSlot: "15:45-17:15" },
-];
-
-// Функція для заповнення таблиці розкладу в HTML
-function fillScheduleTable() {
-  const tableBody = document.querySelector("#scheduleTable tbody") as HTMLTableSectionElement | null;
-
-  if (!tableBody) {
-      console.error("Тіло таблиці не знайдено!");
-      return;
+// Базова структура для контенту
+interface BaseContent {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    publishedAt?: Date;
+    status: 'draft' | 'published' | 'archived';
   }
-
-  tableBody.innerHTML = ''; // Очищення попередніх даних
-
-  // Додавання рядків для кожного заняття в розкладі
-  schedule.forEach(lesson => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-          <td>${lesson.id}</td> <!-- Відображення ID заняття -->
-          <td>${lesson.courseId}</td>
-          <td>${lesson.professorId}</td>
-          <td>${lesson.classroomNumber}</td>
-          <td>${lesson.dayOfWeek}</td>
-          <td>${lesson.timeSlot}</td>
-      `;
-      tableBody.appendChild(row);
-  });
-}
-fillScheduleTable(); // Виклик функції для заповнення таблиці
-
-// Функція для додавання професора
-function addProfessor(professor: Professor): void {
-  professors.push(professor);
-  console.log("Professor added:", professor);
-}
-
-// Функція для перевірки конфліктів занять
-function validateLesson(lesson: Lesson): boolean {
-  const conflictExists = schedule.some(existingLesson => 
-      existingLesson.id !== lesson.id &&  // Перевірка на різні заняття
-      existingLesson.dayOfWeek === lesson.dayOfWeek &&  // Порівняння днів
-      existingLesson.timeSlot === lesson.timeSlot &&  // Порівняння часових слотів
-      existingLesson.classroomNumber === lesson.classroomNumber  // Порівняння аудиторій
-  );
-
-  if (conflictExists) {
-      console.warn(`Конфлікт для заняття з ID ${lesson.id} у ${lesson.dayOfWeek} з часом ${lesson.timeSlot} в аудиторії ${lesson.classroomNumber}.`);
-  }
-  return conflictExists; // Повертає true, якщо конфлікт існує
-}
-
-// Функція для додавання заняття
-function addLesson(lesson: Lesson): boolean {
-  const conflict = validateLesson(lesson); // Перевірка конфлікту
-  if (conflict) {
-      console.log("Conflict found:", conflict);
-      return false; // Якщо конфлікт, повертає false
-  }
-  schedule.push(lesson); // Додавання заняття до розкладу
-  console.log("Lesson added:", lesson);
-  fillScheduleTable(); // Оновлення таблиці
-  return true;
-}
-
-// Функція для знаходження вільних аудиторій за часовим слотом та днем тижня
-function findAvailableClassrooms(timeSlot: TimeSlot, dayOfWeek: DayOfWeek): string[] {
-  // Фільтруємо заняття, що проходять в даний час та день
-  const bookedClassrooms = schedule
-      .filter(lesson => lesson.dayOfWeek === dayOfWeek && lesson.timeSlot === timeSlot)
-      .map(lesson => lesson.classroomNumber);
-  // Повертаємо список вільних аудиторій
-  return classrooms
-      .filter(classroom => !bookedClassrooms.includes(classroom.number))
-      .map(classroom => classroom.number);
-}
-
-// Функція для отримання розкладу певного професора
-function getProfessorSchedule(professorId: number): Lesson[] {
-  return schedule.filter(lesson => lesson.professorId === professorId); // Пошук занять, які викладає професор
-}
-
-// Функція для розрахунку використання аудиторії
-function getClassroomUtilization(classroomNumber: string): number {
-  const totalLessons = schedule.filter(lesson => lesson.classroomNumber === classroomNumber).length; // Кількість занять в аудиторії
-  const utilization = (totalLessons / (5 * 5)) * 100; // Розрахунок відсотка використання (5 днів на тиждень і 5 слотів)
-  return utilization;
-}
-
-// Функція для отримання найпопулярнішого типу курсу
-function getMostPopularCourseType(): CourseType {
-  const typeCount: Record<CourseType, number> = {
-      Lecture: 0,
-      Seminar: 0,
-      Lab: 0,
-      Practice: 0,
-  };
-
-  // Підрахунок типів курсів у розкладі
-  schedule.forEach(lesson => {
-      const course = courses.find(c => c.id === lesson.courseId);
-      if (course) {
-          typeCount[course.type]++;
-      }
-  });
-
-  // Повертає тип курсу з найбільшим числом
-  return Object.keys(typeCount).reduce((a, b) => typeCount[a as CourseType] > typeCount[b as CourseType] ? a : b) as CourseType;
-}
-
-// Функція для зміни аудиторії заняття
-function reassignClassroom(lessonId: number, newClassroomNumber: string): boolean {
-  const lessonIndex = schedule.findIndex(lesson => lesson.id === lessonId); // Знаходження індексу заняття за ID
-  if (lessonIndex === -1) {
-    console.error(`Заняття з ID ${lessonId} не знайдено.`);
-    return false; // Якщо заняття не знайдено, повертає false
-  }
-
-  // Створення нової копії заняття з новою аудиторією
-  const newLesson = { ...schedule[lessonIndex], classroomNumber: newClassroomNumber };
   
-  // Перевірка конфліктів для нового заняття
-  if (validateLesson(newLesson)) {
-    console.warn(`Конфлікт при зміні аудиторії для заняття ${lessonId} на ${newClassroomNumber}.`);
-    return false; // Якщо конфлікт, повертає false
+  interface Article extends BaseContent {
+    title: string;
+    content: string;
+    author: string;
+    tags?: string[];
   }
-
-  // Оновлення розкладу
-  schedule[lessonIndex] = newLesson;
-  console.log(`Аудиторію для заняття ${lessonId} змінено на ${newClassroomNumber}.`);
-  fillScheduleTable(); // Оновлення таблиці
-  return true;
-}
+  
+  interface Product extends BaseContent {
+    name: string;
+    description: string;
+    price: number;
+    inStock: boolean;
+    category?: string;
+  }
+  
+  type ContentOperations<T extends BaseContent> = {
+    create: (content: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) => T;
+    update: (id: string, changes: Partial<T>) => T;
+    delete: (id: string) => boolean;
+    get: (id: string) => T | null;
+    list: (filters?: Partial<T>) => T[];
+  };
+    
+// Система прав доступу
+  type Role = 'admin' | 'editor' | 'viewer';
+  
+  type Permission = {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
+  };
+  
+  type AccessControl<T extends BaseContent> = {
+    role: Role;
+    permissions: Permission;
+    resource: T;
+  };
+  
+  type AccessCheck<T extends BaseContent> = (
+    role: Role,
+    action: keyof Permission,
+    resource: T
+  ) => boolean;
+  
+  const canAccess: AccessCheck<BaseContent> = (role, action, resource) => {
+    const rolePermissions: Record<Role, Permission> = {
+      admin: { create: true, read: true, update: true, delete: true },
+      editor: { create: true, read: true, update: true, delete: false },
+      viewer: { create: false, read: true, update: false, delete: false },
+    };
+  
+    return rolePermissions[role][action];
+  };
+  
+// Система валідації
+  type Validator<T> = {
+    validate: (data: T) => ValidationResult;
+  };
+  
+  type ValidationResult = {
+    isValid: boolean;
+    errors?: string[];
+  };
+  
+  const articleValidator: Validator<Article> = {
+    validate: (data) => {
+      const errors: string[] = [];
+      if (!data.title || data.title.trim() === '') {
+        errors.push('Title is required.');
+      }
+      if (!data.content || data.content.trim() === '') {
+        errors.push('Content is required.');
+      }
+      return { isValid: errors.length === 0, errors };
+    },
+  };
+  
+// Система версіонування
+  type Versioned<T extends BaseContent> = T & {
+    version: number;
+    previousVersions?: T[];
+  };
+  
+  type VersionControl<T extends BaseContent> = {
+    createNewVersion: (content: T) => Versioned<T>;
+    getPreviousVersions: (content: Versioned<T>) => T[];
+  };
+  
+  const versionControl: VersionControl<BaseContent> = {
+    createNewVersion: (content) => ({
+      ...content,
+      version: (content as Versioned<BaseContent>).version
+        ? (content as Versioned<BaseContent>).version + 1
+        : 1,
+      previousVersions: [
+        ...(content as Versioned<BaseContent>).previousVersions || [],
+        content,
+      ],
+    }),
+    getPreviousVersions: (content) => content.previousVersions || [],
+  };
+  
+// Приклад використання
+  const articleOps: ContentOperations<Article> = {
+    create: (content) => ({
+      ...content,
+      id: 'unique-id',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      status: 'draft',
+    }),
+    update: (id, changes) => ({
+      ...changes,
+      id,
+      updatedAt: new Date(),
+    } as Article),
+    delete: (id) => true,
+    get: (id) => null,
+    list: (filters) => [],
+  };
+  
+  const article = articleOps.create({
+      title: 'TypeScript CMS Design',
+      content: 'This is a sample article.',
+      author: 'Admin',
+      tags: ['typescript', 'cms'],
+      status: "draft"
+  });
+  
+  const validated = articleValidator.validate(article);
+  console.log(validated);
+  
+  const versionedArticle = versionControl.createNewVersion(article);
+  console.log(versionedArticle);
+  
